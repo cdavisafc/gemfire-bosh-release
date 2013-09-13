@@ -1,0 +1,107 @@
+---
+name: gemfire-01
+director_uuid: 3b0d24ab-2028-482a-9925-4f7e740502c2
+release:
+  name: boshgem
+  version: latest
+
+compilation:
+  workers: 2
+  cloud_properties:
+    ram: 8192
+    disk: 8096
+    cpu: 4
+  network: default
+  reuse_compilation_vms: true 
+
+update:
+  canaries: 1
+  canary_watch_time: 3000 - 180000
+  update_watch_time: 3000 - 180000
+  max_in_flight: 2
+  max_errors: 1
+
+networks:
+ - name: default
+   subnets:
+   - reserved:
+     - 10.13.219.2 - 10.13.219.88
+     - 10.13.219.107 - 10.13.219.160
+     - 10.13.219.171 - 10.13.219.224
+     - 10.13.219.240 - 10.13.219.254
+     static:
+     - 10.13.219.161 - 10.13.219.170
+     range: 10.13.219.0/24
+     gateway: 10.13.219.1
+     dns:
+     - 10.254.66.23
+     - 10.254.66.24
+     cloud_properties:
+      name : vLAN0583
+
+resource_pools:
+ - name: infrastructure0
+   network: default
+   size: 0
+   stemcell:
+    name: bosh-stemcell
+    version: 0.8.0
+   cloud_properties:
+    ram: 10240
+    disk: 8192
+    cpu: 2
+   env:
+    bosh:
+      password: $6$2f6qtRfO$oJOeKk/ZDNb7PWnvMiXDC/HstKiLiZCBHP32KHFVeM9rXgs4W/JJiI4a/eHoddhxJzorLYgi2JUQiOKxZko4M.
+      # c1oudc0w - password generated using mkpasswd -m sha-512
+ - name: infrastructure1
+   network: default
+   size: 4
+   stemcell:
+    name: bosh-stemcell
+    version: 0.8.0
+   cloud_properties:
+    ram: 2048
+    disk: 8192
+    cpu: 2
+   env:
+    bosh:
+      password: $6$2f6qtRfO$oJOeKk/ZDNb7PWnvMiXDC/HstKiLiZCBHP32KHFVeM9rXgs4W/JJiI4a/eHoddhxJzorLYgi2JUQiOKxZko4M.
+      # c1oudc0w - password generated using mkpasswd -m sha-512
+
+jobs:
+ - name: gemfirelocator
+   template: gemfirelocator
+   instances: 2
+   resource_pool: infrastructure1
+   persistent_disk: 16384
+   networks:
+   - name: default
+     static_ips:
+     - 10.13.219.161-10.13.219.162
+
+ - name: gemfireserver
+   template: gemfireserver
+   instances: 2
+   resource_pool: infrastructure1
+   persistent_disk: 16384
+   networks:
+   - name: default
+     static_ips:
+     - 10.13.219.163 - 10.13.219.164
+
+properties:
+  gemfire:
+    locator:
+      addresses: 10.13.219.161[55221],10.13.219.162[55221]
+      archivewd: true
+    cacheserver:
+      port: 55001
+      archivewd: true
+    license: xxxx
+
+  nfs_server:
+    address: 10.13.219.89
+    network: 10.13.219.0/24
+    export_dir: /var/vcap/store/shared
+

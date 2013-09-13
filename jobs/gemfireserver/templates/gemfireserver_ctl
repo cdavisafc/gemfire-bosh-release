@@ -1,0 +1,72 @@
+#!/bin/bash -e
+
+BIN_DIR=/var/vcap/packages/gemfireserver/vFabric_GemFire_701_b40235/bin
+LIB_DIR=/var/vcap/packages/gemfireserver/vFabric_GemFire_701_b40235/lib
+GF_CONFIG_DIR=/var/vcap/packages/gemfire-config
+RUN_DIR=/var/vcap/sys/run/gemfireserver
+LOG_DIR=/var/vcap/sys/log/gemfireserver
+JOB_DIR=JOB_DIR=/var/vcap/jobs/gemfireserver
+PIDFILE=$RUN_DIR/gemfireserver.pid
+STDOUTLOG=$LOG_DIR/gemfireserver.stdout.log
+STDERRLOG=$LOG_DIR/gemfireserver.stderr.log
+CACHESERVERNAME=cacheserversingleton<%= spec.index %>
+
+export JAVA_HOME=/var/vcap/packages/gemfire_jvm7
+export PATH=$PATH:$JAVA_HOME/bin:$BIN_DIR
+
+LOCATORS=<%= properties.gemfire.locator.addresses.gsub(' ','') %>
+FIRSTLOCATOR=<%= properties.gemfire.locator.addresses.gsub(' ','').split(',')[0] %>
+
+source /var/vcap/packages/common/utils.sh
+
+case $1 in
+
+  start)
+    pid_guard $PIDFILE "gemfire"
+
+    mkdir -p $RUN_DIR
+    mkdir -p $LOG_DIR
+
+    cd $LOG_DIR
+  
+    # (re)move any existing directory that might contain stale state - only support adding an fresh node to the cluster
+    if ls $CACHESERVERNAME &> /dev/null
+    then
+      if [ <%= properties.gemfire.cacheserver.archivewd %> == true ]
+      then
+        if ls "$CACHESERVERNAME"_* &> /dev/null
+        then
+          cur=$(ls -d "$CACHESERVERNAME"_* | sed s/"$CACHESERVERNAME"_// | sort -g | tail -1)
+        else
+          cur=0
+        fi
+        next=$(($cur + 1))
+        mv  $CACHESERVERNAME "$CACHESERVERNAME"_$next
+      else
+        rm -rf $LOG_DIR/$CACHESERVERNAME
+      fi
+    fi
+
+    GF_CONFIG_JARS=""
+    for j in $GF_CONFIG_DIR/*.jar; do
+      GF_CONFIG_JARS="$GF_CONFIG_JARS:$j"
+    done
+
+    gfsh start server --name=$CACHESERVERNAME --classpath=$GF_CONFIG_JARS --locators=$LOCATORS --cache-xml-file=/var/vcap/jobs/gemfireserver/config/server.xml --server-port=<%= properties.gemfire.cacheserver.port %> --mcast-port=0 | grep "Process ID" | sed s/Process\ ID:\ // > $PIDFILE
+    ;;
+
+  stop)
+    # first try a graceful shutdown
+    gfsh -e "connect --locator=$FIRSTLOCATOR" -e "stop server --name=$CACHESERVERNAME"
+    #TODO: check other locators if the first is not reachable?
+    # and if that doesn't work, kill the process
+    kill_and_wait $PIDFILE
+
+    ;;
+
+  *)
+    echo "Usage: gemfireserver_ctl {start|stop}"
+
+    ;;
+
+esac

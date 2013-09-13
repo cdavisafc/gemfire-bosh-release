@@ -1,0 +1,6 @@
+set -e 
+
+  echo "Extracting archive...." 
+  unzip gemfire/vFabric_GemFire_701_b40235.zip
+ 
+  cp -a * ${BOSH_INSTALL_TARGET} 

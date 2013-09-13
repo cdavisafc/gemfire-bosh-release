@@ -1,0 +1,8 @@
+---
+name: gemfireserver
+
+dependencies:
+- gemfire_jvm7
+
+files:
+- gemfire/vFabric_GemFire_701_b40235.zip 

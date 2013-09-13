@@ -1,0 +1,5 @@
+check process gemfireserver
+  with pidfile /var/vcap/sys/run/gemfireserver/gemfireserver.pid
+  start program "/var/vcap/jobs/gemfireserver/bin/gemfireserver_ctl start"
+  stop program "/var/vcap/jobs/gemfireserver/bin/gemfireserver_ctl stop"
+  group vcap

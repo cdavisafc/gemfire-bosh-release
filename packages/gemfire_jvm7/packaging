@@ -1,0 +1,23 @@
+# abort script on any command that exit with a non zero value
+set -e
+
+  archive="java/jdk-7-linux-x64.tar.gz"
+  echo "Using 64-bit version"
+
+if [[ -f $archive ]] ; then
+  echo "Archive found"
+else
+  echo "Archive not found"
+  exit 1
+fi
+
+echo "Extracting archive..."
+tar xzf $archive
+
+if [[ -d bin && `bin/java -version 2>&1` =~ "Java HotSpot" && $? == 0 ]]; then
+  cp -a * ${BOSH_INSTALL_TARGET}
+#  cp java/tools.jar ${BOSH_INSTALL_TARGET}/lib
+else
+  echo "JVM is not properly packaged"
+  exit 1
+fi

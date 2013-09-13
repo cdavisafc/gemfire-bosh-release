@@ -1,0 +1,5 @@
+check process gemfirelocator
+  with pidfile /var/vcap/sys/run/gemfireserver/gemfirelocator.pid
+  start program "/var/vcap/jobs/gemfirelocator/bin/gemfirelocator_ctl start"
+  stop program "/var/vcap/jobs/gemfirelocator/bin/gemfirelocator_ctl stop"
+  group vcap

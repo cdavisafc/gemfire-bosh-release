@@ -1,0 +1,10 @@
+---
+name: gemfirelocator
+
+templates:
+  gemfirelocator_ctl: bin/gemfirelocator_ctl
+  syslog_forwarder.conf.erb: config/syslog_forwarder.conf
+
+packages:
+- gemfireserver
+- common

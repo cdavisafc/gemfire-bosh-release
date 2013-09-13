@@ -1,0 +1,12 @@
+---
+name: gemfireserver
+
+templates:
+  gemfireserver_ctl: bin/gemfireserver_ctl
+  server.xml: config/server.xml
+  syslog_forwarder.conf.erb: config/syslog_forwarder.conf
+
+packages:
+- gemfireserver
+- common
+- gemfire-config

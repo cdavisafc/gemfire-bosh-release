@@ -1,0 +1,8 @@
+---
+name: gemfire-config
+
+dependencies:
+- gemfireserver
+
+files:
+- gemfire-config/gf-tutorial.jar
