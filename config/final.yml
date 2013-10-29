@@ -1,7 +1,7 @@
---- 
+---
 final_name: GemFire
-min_cli_version: 1.0.3
-blobstore: 
+min_cli_version: 1.5.0.pre.1142
+blobstore:
   provider: s3
-  options: 
+  options:
     bucket_name: gemfire-release
