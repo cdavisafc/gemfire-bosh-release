@@ -8,3 +8,4 @@ templates:
 packages:
 - gemfireserver
 - common
+- gemfire_jvm7

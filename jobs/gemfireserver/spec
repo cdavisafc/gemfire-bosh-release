@@ -10,3 +10,4 @@ packages:
 - gemfireserver
 - common
 - gemfire-config
+- gemfire_jvm7
