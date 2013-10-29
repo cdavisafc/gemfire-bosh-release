@@ -8,13 +8,14 @@ PIDFILE=$RUN_DIR/gemfirelocator.pid
 STDOUTLOG=$LOG_DIR/gemfirelocator.stdout.log
 STDERRLOG=$LOG_DIR/gemfirelocator.stderr.log
 LOCATORNAME=locatorsingleton<%= spec.index %>
+LOCATORIPADDR=<%= spec.networks.send(properties.networks.cluster).ip %>
 
 export JAVA_HOME=/var/vcap/packages/gemfire_jvm7
 export PATH=$PATH:$JAVA_HOME/bin:$BIN_DIR
 
 # erb template code takes the list of addresses for locators from the deployment properties, finds the entry with the IP address of this node and extracts the port number from within the square brakets
 # Once deployed, the PORT will simply be set to that port number  
-PORT=<%= myaddresspatternstr = spec.networks.default.ip.gsub('.', '\.') + "\\\[\\\d*\\\]"
+PORT=<%= myaddresspatternstr = spec.networks.send(properties.networks.cluster).ip.gsub('.', '\.') + "\\\[\\\d*\\\]"
          myaddresspattern = Regexp.new myaddresspatternstr
          mylocstr = myaddresspattern.match(properties.gemfire.locator.addresses)[0]
          /\d+/.match(/\[\d*\]/.match(mylocstr)[0])[0] %>
@@ -51,12 +52,12 @@ case $1 in
       fi
     fi
 
-    gfsh start locator --name=$LOCATORNAME --force=true --mcast-port=0 --J=-Dgemfire.bind-address=<%= spec.networks.default.ip %> --locators=$LOCATORS --port=$PORT --connect=false | grep "Process ID" | sed s/Process\ ID:\ // > $PIDFILE
+    gfsh start locator --name=$LOCATORNAME --force=true --mcast-port=0 --J=-Dgemfire.bind-address=$LOCATORIPADDR --locators=$LOCATORS --port=$PORT --connect=false | grep "Process ID" | sed s/Process\ ID:\ // > $PIDFILE
     ;;
 
   stop)
     # first try a graceful shutdown
-    gfsh -e "connect --locator=<%= spec.networks.default.ip %>[$PORT]" -e "stop locator --name=$LOCATORNAME"
+    gfsh -e "connect --locator=$LOCATORIPADDR[$PORT]" -e "stop locator --name=$LOCATORNAME"
     # and if that doesn't work, kill the process
     kill_and_wait $PIDFILE
 

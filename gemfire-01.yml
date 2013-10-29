@@ -105,3 +105,5 @@ properties:
     network: 10.13.219.0/24
     export_dir: /var/vcap/store/shared
 
+  networks:
+    cluster: default
