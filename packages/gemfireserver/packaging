@@ -1,6 +1,9 @@
 set -e 
 
-  echo "Extracting archive...." 
+  echo "Extracting archive...."
+  pwd
   unzip gemfire/vFabric_GemFire_701_b40235.zip
- 
-  cp -a * ${BOSH_INSTALL_TARGET} 
+  ls
+
+  mkdir ${BOSH_INSTALL_TARGET}/vFabric_GemFire
+  cp -a vFabric_GemFire*/* ${BOSH_INSTALL_TARGET}/vFabric_GemFire

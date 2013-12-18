@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-BIN_DIR=/var/vcap/packages/gemfireserver/vFabric_GemFire_701_b40235/bin
-LIB_DIR=/var/vcap/packages/gemfireserver/vFabric_GemFire_701_b40235/lib
+BIN_DIR=/var/vcap/packages/gemfireserver/vFabric_GemFire/bin
+LIB_DIR=/var/vcap/packages/gemfireserver/vFabric_GemFire/lib
 RUN_DIR=/var/vcap/sys/run/gemfireserver
 LOG_DIR=/var/vcap/sys/log/gemfireserver
 PIDFILE=$RUN_DIR/gemfirelocator.pid
