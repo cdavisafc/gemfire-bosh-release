@@ -15,7 +15,7 @@ Three blobs are referenced from this release: a JDK, the Gemfire server and the 
 
 ### src
 
-BOSH also allows source code to be included as a part of a release and for the bosh-gemfire-release this includes only a single utilities script.  This script is taken from the base Cloud Foundry BOSH release. No other source code is used in the basic BOSH Gemfire release.
+BOSH also allows source code to be included as a part of a release and for the bosh-gemfire-release this includes only a single utilities script.  [This script](https://github.com/cloudfoundry/cf-release/blob/master/src/common/utils.sh) is taken from the base Cloud Foundry BOSH release. No other source code is used in the basic BOSH Gemfire release.
 
 ### packages
 
@@ -30,8 +30,8 @@ BOSH packages encapsulate all of the portions of a component that will be instal
 
 BOSH jobs define the processes that are started on a BOSH provisioned virtual machine.  Two jobs are defined for this BOSH Gemfire cluster deployment:
 
-* gemfire locator: This job runs the locator of the Gemfire server, taking in a list of server address and port pairs as input parameters.  These input parameters are set in the BOSH deployment manifest (properties are fully described below).  Thejobs/gemfirelocator/templates/gemfirelocator_ctldefines the process that is started for the Gemfire locator.  Both the startup and shutdown are done via the gfsh command-line tool.
-* gemfire server: This job runs the cache server Gemfire server, taking in the list of locator address and port pairs, and the cache server port as input parameters.  These input parameters are set in the BOSH deployment manifest (properties are fully described below).Thejobs/gemfireserver/templates/gemfireserver_ctldefines the process that is started for the Gemfire server.  Both the startup and shutdown are done via the gfsh command-line tool.
+* gemfire locator: This job runs the locator of the Gemfire server, taking in a list of server address and port pairs as input parameters.  These input parameters are set in the BOSH deployment manifest (properties are fully described below).  The `jobs/gemfirelocator/templates/gemfirelocator_ctl` defines the process that is started for the Gemfire locator.  Both the startup and shutdown are done via the gfsh command-line tool.
+* gemfire server: This job runs the cache server Gemfire server, taking in the list of locator address and port pairs, and the cache server port as input parameters.  These input parameters are set in the BOSH deployment manifest (properties are fully described below).The `jobs/gemfireserver/templates/gemfireserver_ctl` defines the process that is started for the Gemfire server.  Both the startup and shutdown are done via the gfsh command-line tool.
 
 ## Deployment Manifest
 
@@ -52,7 +52,6 @@ jobs:
     static_ips:
     - 10.244.0.102
 	- 10.244.0.106
-
 - name: gemfireserver
   template: gemfireserver
   instances: 2
@@ -64,9 +63,9 @@ jobs:
     - 10.244.0.110
     - 10.244.0.114
 ```
-   Note that each job entry refers to a resource_pool. Resource pools define the characteristics of the compute resource that the job will be deployed to.  
+    Note that each job entry refers to a resource_pool. Resource pools define the characteristics of the compute resource that the job will be deployed to.  
    
-1. Properties: As described above, the jobs defined in the basic Gemfire BOSH deployment launch the Gemfire locators and cache servers with certain parameters such as the location server address.  The following are the supported properties for the basic Gemfire BOSH release:   
+2. Properties: As described above, the jobs defined in the basic Gemfire BOSH deployment launch the Gemfire locators and cache servers with certain parameters such as the location server address.  The following are the supported properties for the basic Gemfire BOSH release:   
 ```
 properties:
   gemfire:
@@ -82,9 +81,9 @@ properties:
     cluster: gf1
 ```
 
-** The "archivewd" property controls whether the working directory for a locator or cache server is preserved when the node is restarted; a value of true saves the working directory, a value of false overwrites it.  If BOSH detects that a server process has failed it will restart that process. To ensure that a locator or cache server with stale or corrupt state is not joined into the cluster, the process is started "fresh", that is, with a blank initial state.  Gemfire is designed for exactly this type of scenario, allowing "blank" nodes to be added when needed, and having those nodes eventually fully incorporated into the cluster by having load moved onto them incrementally.  Archiving the working directories, which include Gemfire logs, can be very helpful in diagnosing problems.
-** While the above example shows two locators listening on the same port, each IP address may have associated with it a different port. There must be at least one locator address/port pair specified.
-** All cache servers are configured to listen on the same port.
+    * The "archivewd" property controls whether the working directory for a locator or cache server is preserved when the node is restarted; a value of true saves the working directory, a value of false overwrites it.  If BOSH detects that a server process has failed it will restart that process. To ensure that a locator or cache server with stale or corrupt state is not joined into the cluster, the process is started "fresh", that is, with a blank initial state.  Gemfire is designed for exactly this type of scenario, allowing "blank" nodes to be added when needed, and having those nodes eventually fully incorporated into the cluster by having load moved onto them incrementally.  Archiving the working directories, which include Gemfire logs, can be very helpful in diagnosing problems.
+    * While the above example shows two locators listening on the same port, each IP address may have associated with it a different port. There must be at least one locator address/port pair specified.
+    * All cache servers are configured to listen on the same port.
 
 
 ## Installation Instructions
@@ -93,60 +92,60 @@ The installation of Gemfire via this BOSH release generally follows the same ste
 
 1. Clone the repsoitory
 
-We will refer to the directory into which you cloned this project as "GEMFIRE_RELEASE_HOME"
+    We will refer to the directory into which you cloned this project as "GEMFIRE_RELEASE_HOME"
 
-1. Add licensed blobs
+2. Add licensed blobs
 
-Create the following two directories:
+    Create the following two directories:
 
-```
-GEMFIRE_RELEASE_HOME/blobs/gemfire
-GEMFIRE_RELEASE_HOME/blobs/java
-```
+    ```
+    GEMFIRE_RELEASE_HOME/blobs/gemfire
+    GEMFIRE_RELEASE_HOME/blobs/java
+    ```
 
-Place the Gemfire zip file into the ```GEMFIRE_RELEASE_HOME/blobs/gemfire``` directory, and the java jdk tar.gz file into the ```GEMFIRE_RELEASE_HOME/blobs/java``` directory.
+    Place the Gemfire zip file into the `GEMFIRE_RELEASE_HOME/blobs/gemfire` directory, and the java jdk tar.gz file into the `GEMFIRE_RELEASE_HOME/blobs/java` directory.
 
-The Gemfire and Java packages reference these binaries by filename so depending on your exact releases you may need to update the spec and packaging files to reflect those changes.  Please look at the following files:
+    The Gemfire and Java packages reference these binaries by filename so depending on your exact releases you may need to update the spec and packaging files to reflect those changes.  Please look at the following files:
 
-1. Create the BOSH release
+3. Create the BOSH release
 
-From the ```GEMFIRE_RELEASE_HOME``` directory type the following command:
+    From the ```GEMFIRE_RELEASE_HOME``` directory type the following command:
 
-```
-bosh create release --force
-```
+    ```
+    bosh create release --force
+    ```
 
-1. Upload the release
+4. Upload the release
 
-Note that it is assumed that you have already targeted your BOSH director.  Now type the following command:
+    Note that it is assumed that you have already targeted your BOSH director.  Now type the following command:
 
-```
-bosh upload release
-```
+    ```
+    bosh upload release
+    ```
 
-1. Update the deployment manifest
+5. Update the deployment manifest
 
-Your updates should cover:
+    Your updates should cover:
 
-* configuring to your IaaS specifics
-* designating the number of locators and cache servers you would like (in the jobs section)
-* setting the list of locator address and port pairs, the cache server port and archivewd options (in the properties section)
+    * configuring to your IaaS specifics
+    * designating the number of locators and cache servers you would like (in the jobs section)
+    * setting the list of locator address and port pairs, the cache server port and archivewd options (in the properties section)
 
-1. Deploy the release
+6. Deploy the release
 
-First you must point to your deployment manifest with the command
+    First you must point to your deployment manifest with the command
 
-```
-bosh deployment <path-to-deployment-manifest>
-```
+    ```
+    bosh deployment <path-to-deployment-manifest>
+    ```
 
-Then have BOSH do the deployment with the following command
+    Then have BOSH do the deployment with the following command
 
-```
-bosh deploy
-```
+    ```
+    bosh deploy
+    ```
 
-If at any time you wish to change the number of locators or increase the number of cache servers you may do so by changing those values in the deployment manifest as described above and simply running the "bosh deploy" step again.
+    If at any time you wish to change the number of locators or increase the number of cache servers you may do so by changing those values in the deployment manifest as described above and simply running the "bosh deploy" step again.
 
 ## Limitations
 
